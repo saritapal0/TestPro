@@ -20,11 +20,11 @@ router.post('/register', validateRegistration, (req, res) => {
         });
     }
 
-    const { username, email, password, parentCode,referrallink } = req.body;
-    const values = [username, email, password, parentCode,referrallink];
+    const { username, email, password, parentCode,referralCode } = req.body;
+    const values = [username, email, password, parentCode,referralCode];
 
     // Insert into database
-    db.query("INSERT INTO users (username, email, password, parentCode,referrallink) VALUES (?, ?, ?, ?, ?)", values, (err, result) => {
+    db.query("INSERT INTO users (username, email, password, parentCode,referralCode) VALUES (?, ?, ?, ?, ?)", values, (err, result) => {
         if (err) {
             return res.status(500).json({
                 success: false,
@@ -39,32 +39,12 @@ router.post('/register', validateRegistration, (req, res) => {
     });
 });
 
-// GET /users/:username endpoint for fetching user details
-router.get('/:id', (req, res) => {
-    const Id = req.params.id;
-
-    // Fetch user from database
-  
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: 'Failed to fetch user'
-            });
-        }
-        
-        if (results.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: 'User not found'
-            });
-        }
-
-        const user = results[0];
-        res.status(200).json({
-            success: true,
-            user
-        });
+router.get("/getusers",(req,res)=>{
+    db.query("select * from users",(err,result)=>{
+      if(err){res.send("error")}
+      else{res.send(result)}                                                                              
     });
+  });
 
 
 module.exports = router;
