@@ -6,21 +6,21 @@ const UserTable = () => {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    // Fetch data from backend API
-    const fetchusers = async () => {
+    const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/users/register'); // Assuming backend server is running on same host
-        setUsers(response.data.users); // Set users array from response
+        const response = await axios.get('http://localhost:4000/api/users/getusers');
+        setUsers(response.data.users || []); 
       } catch (error) {
         console.error('Error fetching users:', error);
+        setUsers([]); 
       }
     };
 
-    fetchusers();
-  }, []); // Empty dependency array means this effect runs once after initial render
+    fetchUsers();
+  }, []);
 
   return (
-    <TableContainer component={Paper} >
+    <TableContainer component={Paper}>
       <Table>
         <TableHead>
           <TableRow>
@@ -32,15 +32,21 @@ const UserTable = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {users.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell>{user.id}</TableCell>
-              <TableCell>{user.username}</TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>{user.password}</TableCell>
-              <TableCell>{user.parentCode}</TableCell>
+          {users.length > 0 ? (
+            users.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell>{user.id}</TableCell>
+                <TableCell>{user.username}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>{user.password}</TableCell>
+                <TableCell>{user.parentCode}</TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={5}>Loading...</TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </TableContainer>

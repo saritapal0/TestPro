@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { createTheme} from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -48,16 +47,31 @@ const Register = () => {
     return isValid;
   };
 
-  const handleLogin = () => {
+  const handleLogin= () => {
     const isValid = validateForm();
-
+  
     if (isValid) {
-      setIsLoggedIn(true);
+      fetch('http://localhost:4000/api/users/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, email, password }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data); // Handle success/failure
+          setIsLoggedIn(true); // Assuming registration was successful, redirect or show success message
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
     }
   };
+  
 
   if (isLoggedIn) {
-    return <FullLayouts/>;
+    return <FullLayouts />;
   }
 
   return (
