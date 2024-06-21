@@ -44,7 +44,7 @@ router.get('/:id', (req, res) => {
     const Id = req.params.id;
 
     // Fetch user from database
-    db.query("SELECT * FROM users WHERE id = ?", Id, (err, results) => {
+  
         if (err) {
             return res.status(500).json({
                 success: false,
@@ -65,6 +65,6 @@ router.get('/:id', (req, res) => {
             user
         });
     });
-});
+
 
 module.exports = router;
