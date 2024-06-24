@@ -11,7 +11,8 @@ const UserTable = () => {
     const fetchUsers = async () => {
       try {
         const response = await axios.get('http://localhost:4000/api/users/getusers');
-        setUsers(response.data.users || []); 
+        setUsers(response.data || []);
+        console.log("err",response);
       } catch (error) {
         console.error('Error fetching users:', error);
         setError('Error fetching users. Please try again later.'); // Set error message
@@ -32,8 +33,8 @@ const UserTable = () => {
             <TableCell>Username</TableCell>
             <TableCell>Email</TableCell>
             <TableCell>Password</TableCell>
-            <TableCell>Parent Code</TableCell>
-            <TableCell>referralCode</TableCell>
+            {/* <TableCell>Parent Code</TableCell>
+            <TableCell>referralCode</TableCell> */}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -57,8 +58,8 @@ const UserTable = () => {
                   <TableCell>{user.username}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>{user.password}</TableCell>
-                  <TableCell>{user.parentCode}</TableCell>
-                  <TableCell>{user.referralCode}</TableCell>
+                  {/* <TableCell>{user.parentCode}</TableCell>
+                  <TableCell>{user.referralCode}</TableCell> */}
                 </TableRow>
               ))
             ) : (

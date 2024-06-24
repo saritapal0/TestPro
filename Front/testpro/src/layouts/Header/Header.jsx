@@ -53,7 +53,8 @@ const Header = ({ toggleMobileSidebar, sx }) => {
             horizontal: 'right',
           }}
         >
-          <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
+          <MenuItem onClick={handleMenuClose}>Register</MenuItem>
+          <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
         </Popover>
       </Toolbar>
     </AppBar>

@@ -20,11 +20,11 @@ router.post('/register', validateRegistration, (req, res) => {
         });
     }
 
-    const { username, email, password, parentCode,referralCode } = req.body;
-    const values = [username, email, password, parentCode,referralCode];
+    const { username, email, password } = req.body;
+    const values = [username, email, password];
 
     // Insert into database
-    db.query("INSERT INTO users (username, email, password, parentCode,referralCode ) VALUES (?, ?, ?, ?, ?)", values, (err, result) => {
+    db.query("INSERT INTO users (username, email, password) VALUES (?, ?, ?)", values, (err, result) => {
         if (err) {
             return res.status(500).json({
                 success: false,
