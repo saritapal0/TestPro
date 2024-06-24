@@ -8,7 +8,7 @@ router.get('/generate', (req, res) => {
     const referralLink = `https://taa.com/ref/${referralCode}`;
 
     // Insert referral data into MySQL
-    const sql = 'INSERT INTO users (referral_code, referral_link) VALUES (?, ?)';
+    const sql = 'INSERT INTO users (referralCode, referral_link) VALUES (?, ?)';
     db.query(sql, [referralCode, referralLink], (err, result) => {
         if (err) throw err;
         console.log('Referral data inserted into MySQL');

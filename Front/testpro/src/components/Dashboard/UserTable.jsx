@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 
-const UserTable = () => {
+const UserTable = ({ referralLink }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,7 +31,11 @@ const UserTable = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/users/getusers');
+        const response = await axios.get('http://localhost:4000/api/users/getusers', {
+          headers: {
+            Referer: referralLink
+          }
+        });
         setUsers(response.data || []);
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -42,7 +46,7 @@ const UserTable = () => {
     };
 
     fetchUsers();
-  }, []);
+  }, [referralLink,referralCode]);
 
   const handleUpdate = async () => {
     try {
@@ -55,6 +59,27 @@ const UserTable = () => {
       // Handle error updating user
     }
   };
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/api/users/getusers', {
+          headers: {
+            Referer: referralLink,
+            ReferralCode: referralCode  // Add referral code as a header
+          }
+        });
+        setUsers(response.data || []);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        setError('Error fetching users. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchUsers();
+  }, [referralLink, referralCode]);
+  
 
   const handleDelete = async () => {
     try {
