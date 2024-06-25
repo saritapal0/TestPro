@@ -10,7 +10,7 @@ router.post('/track', (req, res) => {
         return res.status(400).json({ success: false, message: "Referral code is required" });
     }
 
-    const sql = 'INSERT INTO users ( referralCode) VALUES (?)';
+    const sql = 'INSERT INTO users (referralCode) VALUES (?)';
 
     // Execute the SQL query with parameterized values to prevent SQL injection
     db.query(sql, [referralCode], (err, result) => {
@@ -23,5 +23,6 @@ router.post('/track', (req, res) => {
         res.json({ success: true, message: "Referral tracked successfully" });
     });
 });
+
 
 module.exports = router;
