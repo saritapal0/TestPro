@@ -145,7 +145,7 @@ const UserTable = ({ referralLink, referralCode }) => {
                       Edit
                     </Button>
                     &nbsp;
-                    <Button variant="outlined" color="secondary" onClick={() => handleDeleteClick(user)}>
+                    <Button variant="outlined" color="secondary" onClick={() => handleDeleteClick(user.id)}>
                       Delete
                     </Button>
                   </TableCell>
@@ -165,9 +165,9 @@ const UserTable = ({ referralLink, referralCode }) => {
       {/* Modal for editing user */}
       <Modal open={modalOpen} onClose={handleCloseModal}>
         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper', boxShadow: 24, p: 4 }}>
-          <TextField fullWidth label="Username" name="username" value={editUser?.username} onChange={handleInputChange} />
-          <TextField fullWidth label="Email" name="email" value={editUser?.email} onChange={handleInputChange} />
-          <TextField fullWidth label="Password" name="password" value={editUser?.password} onChange={handleInputChange} />
+          <TextField fullWidth label="Username" name="username" value={editUser?.username || ''} onChange={handleInputChange} />
+          <TextField fullWidth label="Email" name="email" value={editUser?.email || ''} onChange={handleInputChange} />
+          <TextField fullWidth label="Password" name="password" value={editUser?.password || ''} onChange={handleInputChange} />
           <Button variant="contained" color="primary" onClick={handleUpdate}>
             Update
           </Button>
