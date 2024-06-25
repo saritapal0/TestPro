@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 
-const UserTable = ({ referralLink }) => {
+const UserTable = ({ referralLink, referralCode }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,12 +28,14 @@ const UserTable = ({ referralLink }) => {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [deleteUserId, setDeleteUserId] = useState(null);
 
+  // Fetch users with referralCode on component mount or when referralCode changes
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const response = await axios.get('http://localhost:4000/api/users/getusers', {
           headers: {
-            Referer: referralLink
+            Referer: referralLink,
+            ReferralCode: referralCode
           }
         });
         setUsers(response.data || []);
@@ -46,11 +48,16 @@ const UserTable = ({ referralLink }) => {
     };
 
     fetchUsers();
-  }, [referralLink,referralCode]);
+  }, [referralLink, referralCode]);
 
+  // Update user details
   const handleUpdate = async () => {
     try {
-      const response = await axios.put(`http://localhost:4000/api/users/update/${editUser.id}`, editUser);
+      const response = await axios.put(`http://localhost:4000/api/users/update/${editUser.id}`, editUser, {
+        headers: {
+          ReferralCode: referralCode
+        }
+      });
       const updatedUser = response.data;
       setUsers(users.map(user => (user.id === updatedUser.id ? updatedUser : user)));
       setModalOpen(false);
@@ -59,31 +66,15 @@ const UserTable = ({ referralLink }) => {
       // Handle error updating user
     }
   };
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await axios.get('http://localhost:4000/api/users/getusers', {
-          headers: {
-            Referer: referralLink,
-            ReferralCode: referralCode  // Add referral code as a header
-          }
-        });
-        setUsers(response.data || []);
-      } catch (error) {
-        console.error('Error fetching users:', error);
-        setError('Error fetching users. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    fetchUsers();
-  }, [referralLink, referralCode]);
-  
 
+  // Delete user
   const handleDelete = async () => {
     try {
-      await axios.delete(`http://localhost:4000/api/users/delete/${deleteUserId}`);
+      await axios.delete(`http://localhost:4000/api/users/delete/${deleteUserId}`, {
+        headers: {
+          ReferralCode: referralCode
+        }
+      });
       setUsers(users.filter(user => user.id !== deleteUserId));
       setConfirmDeleteOpen(false);
     } catch (error) {
@@ -92,21 +83,25 @@ const UserTable = ({ referralLink }) => {
     }
   };
 
+  // Handle opening modal for editing user
   const handleEditClick = (user) => {
     setEditUser(user);
     setModalOpen(true);
   };
 
+  // Handle opening confirmation dialog for delete
   const handleDeleteClick = (userId) => {
     setDeleteUserId(userId);
     setConfirmDeleteOpen(true);
   };
 
+  // Handle closing modal for editing user
   const handleCloseModal = () => {
     setEditUser(null);
     setModalOpen(false);
   };
 
+  // Handle input change in edit form
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditUser({ ...editUser, [name]: value });
@@ -149,8 +144,8 @@ const UserTable = ({ referralLink }) => {
                     <Button variant="outlined" color="primary" onClick={() => handleEditClick(user)}>
                       Edit
                     </Button>
-                     &nbsp;
-                    <Button variant="outlined" color="secondary" onClick={() => handleDeleteClick(user.id)}>
+                    &nbsp;
+                    <Button variant="outlined" color="secondary" onClick={() => handleDeleteClick(user)}>
                       Delete
                     </Button>
                   </TableCell>
