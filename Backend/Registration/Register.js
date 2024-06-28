@@ -3,6 +3,11 @@ const { body, validationResult } = require('express-validator');
 const router = express.Router();
 const db = require('../connection/db');
 
+const generateReferralCode = () => {
+    // Replace with your logic to generate a referral code
+    return Math.random().toString(36).substr(2, 10); // Example: generates a random alphanumeric string
+};
+
 const validateRegistration = [
     body('username').notEmpty().withMessage('Username is required'),
     body('email').isEmail().withMessage('Invalid email'),
@@ -20,12 +25,19 @@ router.post('/register', validateRegistration, (req, res) => {
         });
     }
 
-    const { username, email, password } = req.body;
-    const values = [username, email, password];
+    const { username, email, password, parentCode } = req.body;
+
+    // Generate referral code and link
+    const referralCode = generateReferralCode();
+    const referral_link = `https://taa.com/ref/${referralCode}`;
 
     // Insert into database
-    db.query("INSERT INTO users (username, email, password) VALUES (?, ?, ?)", values, (err, result) => {
+    const sql = "INSERT INTO users (username, email, password, parentCode, referralCode, referral_link) VALUES (?, ?, ?, ?, ?, ?)";
+    const values = [username, email, password, parentCode, referralCode, referral_link];
+
+    db.query(sql, values, (err, result) => {
         if (err) {
+            console.error("Failed to register user:", err);
             return res.status(500).json({
                 success: false,
                 message: 'Failed to register user'
@@ -39,12 +51,18 @@ router.post('/register', validateRegistration, (req, res) => {
     });
 });
 
-router.get("/getusers",(req,res)=>{
-    db.query("select * from users",(err,result)=>{
-      if(err){res.send("error")}
-      else{res.send(result)}                                                                              
+// GET /getusers endpoint to fetch all users
+router.get('/getusers', (req, res) => {
+    db.query("SELECT * FROM users", (err, result) => {
+        if (err) {
+            console.error("Failed to fetch users:", err);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to fetch users'
+            });
+        }
+        res.status(200).json(result);
     });
-  });
-
+});
 
 module.exports = router;

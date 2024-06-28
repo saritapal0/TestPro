@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { AppBar, Toolbar, IconButton, Typography, Badge, Avatar, Popover, MenuItem } from "@mui/material";
+import { AppBar, Toolbar, IconButton, Typography, Badge, Avatar, Popover, MenuItem, Button } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import { Link } from "react-router-dom"; // Import Link if using React Router
 import profileImageUrl from "../../assets/images/user.jpg";
 
 const Header = ({ toggleMobileSidebar, sx }) => {
@@ -27,7 +28,6 @@ const Header = ({ toggleMobileSidebar, sx }) => {
         >
           <MenuIcon />
         </IconButton>
-        <div sx={{ flexGrow: 1 }} /> {/* Changed flexGrow value */}
         <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
          Dashboard
         </Typography>
@@ -53,7 +53,7 @@ const Header = ({ toggleMobileSidebar, sx }) => {
             horizontal: 'right',
           }}
         >
-          <MenuItem onClick={handleMenuClose}>Register</MenuItem>
+          <MenuItem onClick={handleMenuClose} component={Link} to="/register" color="inherit">New Account</MenuItem>
           <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
         </Popover>
       </Toolbar>

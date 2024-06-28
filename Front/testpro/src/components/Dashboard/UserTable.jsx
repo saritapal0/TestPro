@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 
-const UserTable = ({ referralLink, referralCode }) => {
+const UserTable = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,16 +28,18 @@ const UserTable = ({ referralLink, referralCode }) => {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [deleteUserId, setDeleteUserId] = useState(null);
 
-  // Fetch users with referralCode on component mount or when referralCode changes
+  // State for adding new user
+  const [newUser, setNewUser] = useState({
+    username: '',
+    email: '',
+    password: '',
+  });
+  const [addUserModalOpen, setAddUserModalOpen] = useState(false);
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/users/getusers', {
-          headers: {
-            Referer: referralLink,
-            ReferralCode: referralCode
-          }
-        });
+        const response = await axios.get('http://localhost:4000/api/users/getusers');
         setUsers(response.data || []);
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -48,16 +50,11 @@ const UserTable = ({ referralLink, referralCode }) => {
     };
 
     fetchUsers();
-  }, [referralLink, referralCode]);
+  }, []);
 
-  // Update user details
   const handleUpdate = async () => {
     try {
-      const response = await axios.put(`http://localhost:4000/api/users/update/${editUser.id}`, editUser, {
-        headers: {
-          ReferralCode: referralCode
-        }
-      });
+      const response = await axios.put(`http://localhost:4000/api/users/update/${editUser.id}`, editUser);
       const updatedUser = response.data;
       setUsers(users.map(user => (user.id === updatedUser.id ? updatedUser : user)));
       setModalOpen(false);
@@ -67,14 +64,9 @@ const UserTable = ({ referralLink, referralCode }) => {
     }
   };
 
-  // Delete user
   const handleDelete = async () => {
     try {
-      await axios.delete(`http://localhost:4000/api/users/delete/${deleteUserId}`, {
-        headers: {
-          ReferralCode: referralCode
-        }
-      });
+      await axios.delete(`http://localhost:4000/api/users/delete/${deleteUserId}`);
       setUsers(users.filter(user => user.id !== deleteUserId));
       setConfirmDeleteOpen(false);
     } catch (error) {
@@ -83,28 +75,42 @@ const UserTable = ({ referralLink, referralCode }) => {
     }
   };
 
-  // Handle opening modal for editing user
   const handleEditClick = (user) => {
     setEditUser(user);
     setModalOpen(true);
   };
 
-  // Handle opening confirmation dialog for delete
   const handleDeleteClick = (userId) => {
     setDeleteUserId(userId);
     setConfirmDeleteOpen(true);
   };
 
-  // Handle closing modal for editing user
   const handleCloseModal = () => {
     setEditUser(null);
     setModalOpen(false);
   };
 
-  // Handle input change in edit form
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditUser({ ...editUser, [name]: value });
+  };
+
+  const handleAddUserInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewUser({ ...newUser, [name]: value });
+  };
+
+  const handleAddUser = async () => {
+    try {
+      const response = await axios.post('http://localhost:4000/api/users/register', newUser);
+      const createdUser = response.data;
+      setUsers([...users, createdUser]);
+      setAddUserModalOpen(false);
+      setNewUser({ username: '', email: '', password: '' }); // Clear input fields
+    } catch (error) {
+      console.error('Error adding user:', error);
+      // Handle error adding user
+    }
   };
 
   return (
@@ -132,37 +138,34 @@ const UserTable = ({ referralLink, referralCode }) => {
                 {error}
               </TableCell>
             </TableRow>
-          ) : (
-            users.length > 0 ? (
-              users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>{user.id}</TableCell>
-                  <TableCell>{user.username}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.password}</TableCell>
-                  <TableCell>
-                    <Button variant="outlined" color="primary" onClick={() => handleEditClick(user)}>
-                      Edit
-                    </Button>
-                    &nbsp;
-                    <Button variant="outlined" color="secondary" onClick={() => handleDeleteClick(user.id)}>
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={5} align="center">
-                  No users found.
+          ) : users.length > 0 ? (
+            users.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell>{user.id}</TableCell>
+                <TableCell>{user.username}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>{user.password}</TableCell>
+                <TableCell>
+                  <Button variant="outlined" color="primary" onClick={() => handleEditClick(user)}>
+                    Edit
+                  </Button>
+                  &nbsp;
+                  <Button variant="outlined" color="secondary" onClick={() => handleDeleteClick(user.id)}>
+                    Delete
+                  </Button>
                 </TableCell>
               </TableRow>
-            )
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={5} align="center">
+                No users found.
+              </TableCell>
+            </TableRow>
           )}
         </TableBody>
       </Table>
 
-      {/* Modal for editing user */}
       <Modal open={modalOpen} onClose={handleCloseModal}>
         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper', boxShadow: 24, p: 4 }}>
           <TextField fullWidth label="Username" name="username" value={editUser?.username || ''} onChange={handleInputChange} />
@@ -174,7 +177,6 @@ const UserTable = ({ referralLink, referralCode }) => {
         </div>
       </Modal>
 
-      {/* Confirmation dialog for delete */}
       <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
@@ -191,6 +193,30 @@ const UserTable = ({ referralLink, referralCode }) => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Modal for adding new user */}
+      <Dialog open={addUserModalOpen} onClose={() => setAddUserModalOpen(false)}>
+        <DialogTitle>Add New User</DialogTitle>
+        <DialogContent>
+          <TextField fullWidth label="Username" name="username" value={newUser.username} onChange={handleAddUserInputChange} />
+          <TextField fullWidth label="Email" name="email" value={newUser.email} onChange={handleAddUserInputChange} />
+          <TextField fullWidth label="Password" name="password" value={newUser.password} onChange={handleAddUserInputChange} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddUserModalOpen(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleAddUser} color="primary">
+            Add User
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Button to open add user modal */}
+      <Button variant="contained" color="primary" onClick={() => setAddUserModalOpen(true)}>
+        Add User
+      </Button>
+
     </TableContainer>
   );
 };

@@ -17,11 +17,11 @@ router.get('/generate', (req, res) => {
     });
 });
 
-// // POST request handler to process referral code
+ //POST request handler to process referral code
 // router.post('/postReferral', (req, res) => {
 //     const { referralCode } = req.body;
 
-//     // Insert referral data into MySQL
+// //      Insert referral data into MySQL
 //     const sql = 'INSERT INTO users (referralCode) VALUES (?)';
 //     db.query(sql, [referralCode], (err, result) => {
 //         if (err) {
