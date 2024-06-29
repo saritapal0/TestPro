@@ -52,8 +52,8 @@ const Register = () => {
     const isValid = validateForm();
 
     if (isValid) {
-      fetch('http://localhost:4000/api/users/register', {
-        method: 'POST',
+      fetch('http://localhost:4000/api/users/getusers', {
+        method: 'POST',   
         headers: {
           'Content-Type': 'application/json',
         },
@@ -66,12 +66,12 @@ const Register = () => {
           return response.json();
         })
         .then(data => {
-          console.log(data); // Handle success response
-          setIsLoggedIn(true); // Registration successful, redirect or show success message
+          console.log(data); 
+          setIsLoggedIn(true); 
         })
         .catch(error => {
           console.error('Error:', error);
-          setError('Registration failed. Please try again.'); // Handle registration failure
+          setError('Registration failed. Please try again.'); 
         });
     }
   };

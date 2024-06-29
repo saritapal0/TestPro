@@ -9,6 +9,7 @@ import {
   Paper,
   CircularProgress,
   Button,
+  Modal,
   TextField,
   Dialog,
   DialogTitle,
@@ -19,13 +20,13 @@ import {
 import axios from 'axios';
 
 const UserTable = () => {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [editUser, setEditUser] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [deleteUserId, setDeleteUserId] = useState(null);
+  const [users, setUsers] = useState([]); // State to hold users fetched from server
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState(null); // Error state
+  const [editUser, setEditUser] = useState(null); // State for currently edited user
+  const [modalOpen, setModalOpen] = useState(false); // State for edit modal
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false); // State for delete confirmation dialog
+  const [deleteUserId, setDeleteUserId] = useState(null); // State for user id to delete
 
   // State for adding new user
   const [newUser, setNewUser] = useState({
@@ -33,79 +34,89 @@ const UserTable = () => {
     email: '',
     password: '',
   });
-  const [addUserModalOpen, setAddUserModalOpen] = useState(false);
+  const [addUserModalOpen, setAddUserModalOpen] = useState(false); // State for add user modal
 
+  // Fetch users from server on component mount
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const response = await axios.get('http://localhost:4000/api/users/getusers');
-        setUsers(response.data || []);
-        setLoading(false);
-        setError(null); // Reset error state on successful fetch
+        setUsers(response.data || []); // Set users state with fetched data
       } catch (error) {
         console.error('Error fetching users:', error);
-        setLoading(false);
         setError('Error fetching users. Please try again later.');
+      } finally {
+        setLoading(false); // Set loading to false whether successful or not
       }
     };
 
     fetchUsers();
   }, []);
 
+  // Update user details
   const handleUpdate = async () => {
     try {
       const response = await axios.put(`http://localhost:4000/api/users/update/${editUser.id}`, editUser);
       const updatedUser = response.data;
-      setUsers(users.map(user => (user.id === updatedUser.id ? updatedUser : user)));
-      setModalOpen(false);
+      setUsers(users.map(user => (user.id === updatedUser.id ? updatedUser : user))); // Update user in state
+      setModalOpen(false); // Close modal
+      setEditUser(null); // Clear editUser state
     } catch (error) {
       console.error('Error updating user:', error);
       // Handle error updating user
     }
   };
 
+  // Delete user
   const handleDelete = async () => {
     try {
       await axios.delete(`http://localhost:4000/api/users/delete/${deleteUserId}`);
-      setUsers(users.filter(user => user.id !== deleteUserId));
-      setConfirmDeleteOpen(false);
+      setUsers(users.filter(user => user.id !== deleteUserId)); // Remove deleted user from state
+      setConfirmDeleteOpen(false); // Close confirmation dialog
+      setDeleteUserId(null); // Clear deleteUserId state
     } catch (error) {
       console.error('Error deleting user:', error);
       // Handle error deleting user
     }
   };
 
+  // Open modal for editing user
   const handleEditClick = (user) => {
-    setEditUser(user);
-    setModalOpen(true);
+    setEditUser(user); // Set editUser state with user to edit
+    setModalOpen(true); // Open edit modal
   };
 
+  // Open confirmation dialog for deleting user
   const handleDeleteClick = (userId) => {
-    setDeleteUserId(userId);
-    setConfirmDeleteOpen(true);
+    setDeleteUserId(userId); // Set deleteUserId state with user id to delete
+    setConfirmDeleteOpen(true); // Open confirmation dialog
   };
 
+  // Close edit modal
   const handleCloseModal = () => {
-    setEditUser(null);
-    setModalOpen(false);
+    setEditUser(null); // Clear editUser state
+    setModalOpen(false); // Close edit modal
   };
 
+  // Handle input change in edit modal
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setEditUser({ ...editUser, [name]: value });
+    setEditUser({ ...editUser, [name]: value }); // Update editUser state
   };
 
+  // Handle input change in add user modal
   const handleAddUserInputChange = (e) => {
     const { name, value } = e.target;
-    setNewUser({ ...newUser, [name]: value });
+    setNewUser({ ...newUser, [name]: value }); // Update newUser state
   };
 
+  // Add new user
   const handleAddUser = async () => {
     try {
       const response = await axios.post('http://localhost:4000/api/users/register', newUser);
       const createdUser = response.data;
-      setUsers([...users, createdUser]);
-      setAddUserModalOpen(false);
+      setUsers([...users, createdUser]); // Add newly created user to state
+      setAddUserModalOpen(false); // Close add user modal
       setNewUser({ username: '', email: '', password: '' }); // Clear input fields
     } catch (error) {
       console.error('Error adding user:', error);
@@ -134,17 +145,11 @@ const UserTable = () => {
             </TableRow>
           ) : error ? (
             <TableRow>
-              <TableCell colSpan={5} align="center">
+              <TableCell colSpan={5} align="center" style={{ color: 'red' }}>
                 {error}
               </TableCell>
             </TableRow>
-          ) : !Array.isArray(users) || users.length === 0 ? ( // Check if users is not an array or empty
-            <TableRow>
-              <TableCell colSpan={5} align="center">
-                No users found.
-              </TableCell>
-            </TableRow>
-          ) : (
+          ) : users.length > 0 ? (
             users.map((user) => (
               <TableRow key={user.id}>
                 <TableCell>{user.id}</TableCell>
@@ -162,27 +167,29 @@ const UserTable = () => {
                 </TableCell>
               </TableRow>
             ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={5} align="center">
+                No users found.
+              </TableCell>
+            </TableRow>
           )}
         </TableBody>
       </Table>
 
-      <Dialog open={modalOpen} onClose={handleCloseModal}>
-        <DialogTitle>Edit User</DialogTitle>
-        <DialogContent>
+      {/* Modal for editing user */}
+      <Modal open={modalOpen} onClose={handleCloseModal}>
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper', boxShadow: 24, p: 4 }}>
           <TextField fullWidth label="Username" name="username" value={editUser?.username || ''} onChange={handleInputChange} />
           <TextField fullWidth label="Email" name="email" value={editUser?.email || ''} onChange={handleInputChange} />
           <TextField fullWidth label="Password" name="password" value={editUser?.password || ''} onChange={handleInputChange} />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseModal} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleUpdate} color="primary">
+          <Button variant="contained" color="primary" onClick={handleUpdate}>
             Update
           </Button>
-        </DialogActions>
-      </Dialog>
+        </div>
+      </Modal>
 
+      {/* Dialog for confirming user deletion */}
       <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
@@ -200,6 +207,7 @@ const UserTable = () => {
         </DialogActions>
       </Dialog>
 
+      {/* Dialog for adding new user */}
       <Dialog open={addUserModalOpen} onClose={() => setAddUserModalOpen(false)}>
         <DialogTitle>Add New User</DialogTitle>
         <DialogContent>
@@ -216,10 +224,6 @@ const UserTable = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
-      <Button variant="contained" color="primary" onClick={() => setAddUserModalOpen(true)}>
-        Add User
-      </Button>
     </TableContainer>
   );
 };
