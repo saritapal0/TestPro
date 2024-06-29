@@ -138,7 +138,13 @@ const UserTable = () => {
                 {error}
               </TableCell>
             </TableRow>
-          ) : users.length > 0 ? (
+          ) : !Array.isArray(users) || users.length === 0 ? ( // Check if users is not an array or empty
+            <TableRow>
+              <TableCell colSpan={5} align="center">
+                No users found.
+              </TableCell>
+            </TableRow>
+          ) : (
             users.map((user) => (
               <TableRow key={user.id}>
                 <TableCell>{user.id}</TableCell>
@@ -156,12 +162,6 @@ const UserTable = () => {
                 </TableCell>
               </TableRow>
             ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={5} align="center">
-                No users found.
-              </TableCell>
-            </TableRow>
           )}
         </TableBody>
       </Table>

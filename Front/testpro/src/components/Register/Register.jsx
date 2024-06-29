@@ -16,6 +16,7 @@ const Register = () => {
   const [passwordError, setPasswordError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [error, setError] = useState('');
 
   const validateForm = () => {
     let isValid = true;
@@ -56,7 +57,7 @@ const Register = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, email, password }), // Removed parentCode from here
+        body: JSON.stringify({ username, email, password }),
       })
         .then(response => {
           if (!response.ok) {
@@ -66,11 +67,11 @@ const Register = () => {
         })
         .then(data => {
           console.log(data); // Handle success response
-          setIsLoggedIn(true); // Assuming registration was successful, redirect or show success message
+          setIsLoggedIn(true); // Registration successful, redirect or show success message
         })
         .catch(error => {
           console.error('Error:', error);
-          // Handle error state here, e.g., setErrorState(true);
+          setError('Registration failed. Please try again.'); // Handle registration failure
         });
     }
   };
@@ -127,6 +128,11 @@ const Register = () => {
               helperText={passwordError}
             />
           </Box>
+          {error && (
+            <Typography variant="body2" color="error" gutterBottom>
+              {error}
+            </Typography>
+          )}
         </CardContent>
         <CardActions sx={{ justifyContent: 'center' }}>
           <Button variant="contained" color="primary" onClick={handleRegister}>
