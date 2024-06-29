@@ -106,7 +106,7 @@ const UserTable = () => {
       const createdUser = response.data;
       setUsers([...users, createdUser]);
       setAddUserModalOpen(false);
-      setNewUser({ username: '', email: '', password: '' }); // Clear input fields
+      setNewUser({ username: '', email: '', password: ''}); // Clear input fields
     } catch (error) {
       console.error('Error adding user:', error);
       // Handle error adding user
