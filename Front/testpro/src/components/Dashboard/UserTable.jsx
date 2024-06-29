@@ -41,6 +41,7 @@ const UserTable = () => {
     const fetchUsers = async () => {
       try {
         const response = await axios.get('http://localhost:4000/api/users/getusers');
+        console.log('Fetched users:', response.data);
         setUsers(response.data || []); // Set users state with fetched data
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -58,12 +59,13 @@ const UserTable = () => {
     try {
       const response = await axios.put(`http://localhost:4000/api/users/update/${editUser.id}`, editUser);
       const updatedUser = response.data;
+      console.log('Updated user:', updatedUser);
       setUsers(users.map(user => (user.id === updatedUser.id ? updatedUser : user))); // Update user in state
       setModalOpen(false); // Close modal
       setEditUser(null); // Clear editUser state
     } catch (error) {
       console.error('Error updating user:', error);
-      // Handle error updating user
+      setError('Error updating user. Please try again later.');
     }
   };
 
@@ -71,29 +73,33 @@ const UserTable = () => {
   const handleDelete = async () => {
     try {
       await axios.delete(`http://localhost:4000/api/users/delete/${deleteUserId}`);
+      console.log('Deleted user with ID:', deleteUserId);
       setUsers(users.filter(user => user.id !== deleteUserId)); // Remove deleted user from state
       setConfirmDeleteOpen(false); // Close confirmation dialog
       setDeleteUserId(null); // Clear deleteUserId state
     } catch (error) {
       console.error('Error deleting user:', error);
-      // Handle error deleting user
+      setError('Error deleting user. Please try again later.');
     }
   };
 
   // Open modal for editing user
   const handleEditClick = (user) => {
+    console.log('Editing user:', user);
     setEditUser(user); // Set editUser state with user to edit
     setModalOpen(true); // Open edit modal
   };
 
   // Open confirmation dialog for deleting user
   const handleDeleteClick = (userId) => {
+    console.log('Deleting user with ID:', userId);
     setDeleteUserId(userId); // Set deleteUserId state with user id to delete
     setConfirmDeleteOpen(true); // Open confirmation dialog
   };
 
   // Close edit modal
   const handleCloseModal = () => {
+    console.log('Closing edit modal');
     setEditUser(null); // Clear editUser state
     setModalOpen(false); // Close edit modal
   };
@@ -101,12 +107,14 @@ const UserTable = () => {
   // Handle input change in edit modal
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    console.log(`Editing ${name}: ${value}`);
     setEditUser({ ...editUser, [name]: value }); // Update editUser state
   };
 
   // Handle input change in add user modal
   const handleAddUserInputChange = (e) => {
     const { name, value } = e.target;
+    console.log(`Adding new ${name}: ${value}`);
     setNewUser({ ...newUser, [name]: value }); // Update newUser state
   };
 
@@ -115,12 +123,13 @@ const UserTable = () => {
     try {
       const response = await axios.post('http://localhost:4000/api/users/register', newUser);
       const createdUser = response.data;
+      console.log('Created user:', createdUser);
       setUsers([...users, createdUser]); // Add newly created user to state
       setAddUserModalOpen(false); // Close add user modal
       setNewUser({ username: '', email: '', password: '' }); // Clear input fields
     } catch (error) {
       console.error('Error adding user:', error);
-      // Handle error adding user
+      setError('Error adding user. Please try again later.');
     }
   };
 
