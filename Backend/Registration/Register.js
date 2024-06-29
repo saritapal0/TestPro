@@ -3,16 +3,16 @@ const { body, validationResult } = require('express-validator');
 const router = express.Router();
 const db = require('../connection/db');
 
+// Function to generate a referral code
 const generateReferralCode = () => {
-    // Replace with your logic to generate a referral code
-    return Math.random().toString(36).substr(2, 10); // Example: generates a random alphanumeric string
+    return Math.random().toString(36).substr(2, 10);
 };
 
+// Validation middleware for registration
 const validateRegistration = [
     body('username').notEmpty().withMessage('Username is required'),
     body('email').isEmail().withMessage('Invalid email'),
     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
-    // Add more validations as needed
 ];
 
 // POST /register endpoint for user registration
@@ -25,15 +25,15 @@ router.post('/register', validateRegistration, (req, res) => {
         });
     }
 
-    const { username, email, password, parentCode } = req.body;
+    const { username, email, password } = req.body;
 
     // Generate referral code and link
     const referralCode = generateReferralCode();
     const referral_link = `https://taa.com/ref/${referralCode}`;
 
     // Insert into database
-    const sql = "INSERT INTO users (username, email, password, parentCode, referralCode, referral_link) VALUES (?, ?, ?, ?, ?, ?)";
-    const values = [username, email, password, parentCode, referralCode, referral_link];
+    const sql = "INSERT INTO users (username, email, password, referralCode, referral_link) VALUES (?, ?, ?, ?, ?)";
+    const values = [username, email, password, referralCode, referral_link]; // Include referralCode and referral_link in values array
 
     db.query(sql, values, (err, result) => {
         if (err) {
@@ -61,7 +61,10 @@ router.get('/getusers', (req, res) => {
                 message: 'Failed to fetch users'
             });
         }
-        res.status(200).json(result);
+        res.status(200).json({
+            success: true,
+            users: result
+        });
     });
 });
 

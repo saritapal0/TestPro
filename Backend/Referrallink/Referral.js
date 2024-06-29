@@ -6,11 +6,11 @@ const db = require("../connection/db")
 router.get('/generate', (req, res) => {
     const referralCode = generateReferralCode();
     const referralLink = `https://taa.com/ref/${referralCode}`;
-    const { username, email, password, parentCode } = req.body;
+    const { username, email, password} = req.body;
 
     // Insert referral data into MySQL
-    const sql = 'INSERT INTO users ( username, email, password, parentCode, referralCode, referral_link) VALUES (?,?,?,?,?,?)';
-    db.query(sql, [  username, email, password, parentCode, referralCode, referralLink ], (err, result) => {
+    const sql = 'INSERT INTO users ( username, email, password,referralCode, referral_link) VALUES (?,?,?,?,?)';
+    db.query(sql, [  username, email, password, referralCode, referralLink ], (err, result) => {
         if (err) throw err;
         console.log('Referral data inserted into MySQL');
         res.json({ referralLink });

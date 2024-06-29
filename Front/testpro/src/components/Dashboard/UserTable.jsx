@@ -9,7 +9,6 @@ import {
   Paper,
   CircularProgress,
   Button,
-  Modal,
   TextField,
   Dialog,
   DialogTitle,
@@ -41,11 +40,12 @@ const UserTable = () => {
       try {
         const response = await axios.get('http://localhost:4000/api/users/getusers');
         setUsers(response.data || []);
+        setLoading(false);
+        setError(null); // Reset error state on successful fetch
       } catch (error) {
         console.error('Error fetching users:', error);
-        setError('Error fetching users. Please try again later.');
-      } finally {
         setLoading(false);
+        setError('Error fetching users. Please try again later.');
       }
     };
 
@@ -106,7 +106,7 @@ const UserTable = () => {
       const createdUser = response.data;
       setUsers([...users, createdUser]);
       setAddUserModalOpen(false);
-      setNewUser({ username: '', email: '', password: ''}); // Clear input fields
+      setNewUser({ username: '', email: '', password: '' }); // Clear input fields
     } catch (error) {
       console.error('Error adding user:', error);
       // Handle error adding user
@@ -166,16 +166,22 @@ const UserTable = () => {
         </TableBody>
       </Table>
 
-      <Modal open={modalOpen} onClose={handleCloseModal}>
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper', boxShadow: 24, p: 4 }}>
+      <Dialog open={modalOpen} onClose={handleCloseModal}>
+        <DialogTitle>Edit User</DialogTitle>
+        <DialogContent>
           <TextField fullWidth label="Username" name="username" value={editUser?.username || ''} onChange={handleInputChange} />
           <TextField fullWidth label="Email" name="email" value={editUser?.email || ''} onChange={handleInputChange} />
           <TextField fullWidth label="Password" name="password" value={editUser?.password || ''} onChange={handleInputChange} />
-          <Button variant="contained" color="primary" onClick={handleUpdate}>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModal} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleUpdate} color="primary">
             Update
           </Button>
-        </div>
-      </Modal>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
         <DialogTitle>Confirm Delete</DialogTitle>
@@ -194,7 +200,6 @@ const UserTable = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Modal for adding new user */}
       <Dialog open={addUserModalOpen} onClose={() => setAddUserModalOpen(false)}>
         <DialogTitle>Add New User</DialogTitle>
         <DialogContent>
@@ -212,11 +217,9 @@ const UserTable = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Button to open add user modal */}
       <Button variant="contained" color="primary" onClick={() => setAddUserModalOpen(true)}>
         Add User
       </Button>
-
     </TableContainer>
   );
 };
