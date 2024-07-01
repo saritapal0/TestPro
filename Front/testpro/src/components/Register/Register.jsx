@@ -49,20 +49,18 @@ const Register = () => {
     return isValid;
   };
 
-  const generateReferralLink = (userId) => {
-    // Example of generating a referral link (you can customize this logic)
-    return `http://example.com/referral/${userId}`;
+  const generateReferralLink = (referralCode) => {
+    return `http://example.com/referral/${referralCode}`;
   };
 
   const trackReferralLink = (link) => {
     console.log('Referral link tracked:', link);
-
-    // Here you can implement further logic to send the referral link to analytics, save it locally, etc.
+    // Additional logic for tracking referral link can be added here
   };
 
   const handleRegister = () => {
     const isValid = validateForm();
-
+  
     if (isValid) {
       fetch('http://localhost:4000/api/users/register', {
         method: 'POST',
@@ -73,21 +71,23 @@ const Register = () => {
       })
         .then(response => {
           if (!response.ok) {
-            throw new Error('Network response was not ok');
+            throw new Error(`HTTP error! Status: ${response.status}`);
           }
           return response.json();
         })
         .then(data => {
-          const userId = data.userId; // Adjust based on your API response
+          if (data.userId) {
+            throw new Error('User ID not found in response');
+          }
+          
+          const userId = data.userId;
           const link = generateReferralLink(userId);
           setReferralLink(link);
           setIsLoggedIn(true);
-
-          // Track or log referral link here
           trackReferralLink(link);
         })
         .catch(error => {
-          console.error('Error:', error);
+          console.error('Error during registration:', error);
           setError('Registration failed. Please try again.');
         });
     }
