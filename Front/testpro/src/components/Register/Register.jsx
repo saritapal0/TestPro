@@ -17,6 +17,7 @@ const Register = () => {
   const [emailError, setEmailError] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [error, setError] = useState('');
+  const [referralLink, setReferralLink] = useState('');
 
   const validateForm = () => {
     let isValid = true;
@@ -48,6 +49,17 @@ const Register = () => {
     return isValid;
   };
 
+  const generateReferralLink = (userId) => {
+    // Example of generating a referral link (you can customize this logic)
+    return `http://example.com/referral/${userId}`;
+  };
+
+  const trackReferralLink = (link) => {
+    console.log('Referral link tracked:', link);
+
+    // Here you can implement further logic to send the referral link to analytics, save it locally, etc.
+  };
+
   const handleRegister = () => {
     const isValid = validateForm();
 
@@ -66,8 +78,13 @@ const Register = () => {
           return response.json();
         })
         .then(data => {
-          console.log(data);
+          const userId = data.userId; // Adjust based on your API response
+          const link = generateReferralLink(userId);
+          setReferralLink(link);
           setIsLoggedIn(true);
+
+          // Track or log referral link here
+          trackReferralLink(link);
         })
         .catch(error => {
           console.error('Error:', error);
@@ -77,7 +94,27 @@ const Register = () => {
   };
 
   if (isLoggedIn) {
-    return <FullLayouts />;
+    return (
+      <FullLayouts>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
+            backgroundColor: '#f0f0f0',
+          }}
+        >
+          <Typography variant="h5" component="div" gutterBottom>
+            Registration Successful
+          </Typography>
+          <Typography variant="body1" gutterBottom>
+            Your referral link:
+            <a href={referralLink} target="_blank" rel="noopener noreferrer">{referralLink}</a>
+          </Typography>
+        </Box>
+      </FullLayouts>
+    );
   }
 
   return (

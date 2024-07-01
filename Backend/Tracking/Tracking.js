@@ -37,7 +37,7 @@ router.post('/track', (req, res) => {
             return res.status(500).json({ success: false, message: "Failed to track referral" });
         }
 
-        console.log("Referral tracked successfully");
+        // console.log("Referral tracked successfully");
         res.json({ success: true, message: "Referral tracked successfully" });
     });
 });

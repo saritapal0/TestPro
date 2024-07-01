@@ -42,7 +42,14 @@ const UserTable = () => {
       try {
         const response = await axios.get('http://localhost:4000/api/users/getusers');
         console.log('Fetched users:', response.data);
-        setUsers(response.data.users || []); // Set users state with fetched data
+
+        // Map over fetched users to add referral link
+        const updatedUsers = response.data.users.map(user => ({
+          ...user,
+          referralLink: generateReferralLink(user.id), // Assuming generateReferralLink function is defined
+        }));
+
+        setUsers(updatedUsers); // Set users state with updated data including referral link
       } catch (error) {
         console.error('Error fetching users:', error);
         setError('Error fetching users. Please try again later.');
@@ -50,7 +57,6 @@ const UserTable = () => {
         setLoading(false); // Set loading to false whether successful or not
       }
     };
-
 
     fetchUsers();
   }, []);
@@ -125,13 +131,19 @@ const UserTable = () => {
       const response = await axios.post('http://localhost:4000/api/users/register', newUser);
       const createdUser = response.data;
       console.log('Created user:', createdUser);
-      setUsers([...users, createdUser]); // Add newly created user to state
+      setUsers([...users, { ...createdUser, referralLink: generateReferralLink(createdUser.id) }]); // Add newly created user to state with referral link
       setAddUserModalOpen(false); // Close add user modal
       setNewUser({ username: '', email: '', password: '' }); // Clear input fields
     } catch (error) {
       console.error('Error adding user:', error);
       setError('Error adding user. Please try again later.');
     }
+  };
+
+  // Generate referral link
+  const generateReferralLink = (userId) => {
+    return `http://example.com/referral/${userId}`;
+    // Customize this URL structure or logic as per your actual requirements
   };
 
   return (
@@ -143,19 +155,20 @@ const UserTable = () => {
             <TableCell>Username</TableCell>
             <TableCell>Email</TableCell>
             <TableCell>Password</TableCell>
+            <TableCell>Referral Link</TableCell>
             <TableCell>Action</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {loading ? (
             <TableRow>
-              <TableCell colSpan={5} align="center">
+              <TableCell colSpan={6} align="center">
                 <CircularProgress />
               </TableCell>
             </TableRow>
           ) : error ? (
             <TableRow>
-              <TableCell colSpan={5} align="center" style={{ color: 'red' }}>
+              <TableCell colSpan={6} align="center" style={{ color: 'red' }}>
                 {error}
               </TableCell>
             </TableRow>
@@ -166,6 +179,7 @@ const UserTable = () => {
                 <TableCell>{user.username}</TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.password}</TableCell>
+                <TableCell>{user.referralLink}</TableCell>
                 <TableCell>
                   <Button variant="outlined" color="primary" onClick={() => handleEditClick(user)}>
                     Edit
@@ -179,7 +193,7 @@ const UserTable = () => {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={5} align="center">
+              <TableCell colSpan={6} align="center">
                 No users found.
               </TableCell>
             </TableRow>
