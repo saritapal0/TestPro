@@ -42,7 +42,7 @@ const UserTable = () => {
       try {
         const response = await axios.get('http://localhost:4000/api/users/getusers');
         console.log('Fetched users:', response.data);
-        setUsers(response.data || []); // Set users state with fetched data
+        setUsers(response.data.users || []); // Set users state with fetched data
       } catch (error) {
         console.error('Error fetching users:', error);
         setError('Error fetching users. Please try again later.');
@@ -50,6 +50,7 @@ const UserTable = () => {
         setLoading(false); // Set loading to false whether successful or not
       }
     };
+
 
     fetchUsers();
   }, []);
