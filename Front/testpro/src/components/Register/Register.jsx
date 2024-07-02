@@ -19,6 +19,7 @@ const Register = () => {
   const [error, setError] = useState('');
   const [referralLink, setReferralLink] = useState('');
 
+  // Function to validate form fields
   const validateForm = () => {
     let isValid = true;
 
@@ -49,18 +50,40 @@ const Register = () => {
     return isValid;
   };
 
-  const generateReferralLink = (referralCode) => {
-    return `http://example.com/referral/${referralCode}`;
-  };
-
+  // Function to track referral link
   const trackReferralLink = (link) => {
-    console.log('Referral link tracked:', link);
-    // Additional logic for tracking referral link can be added here
+    // Example: Server-side logging
+    fetch('http://localhost:4000/api/tracking/track', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ link }),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Failed to track referral link. Status: ${response.status}`);
+        }
+        console.log('Referral link tracked successfully:', link);
+        return response.json();
+      })
+      .then(data => {
+        console.log('Response from tracking API:', data); // Optional: Log response data
+      })
+      .catch(error => {
+        console.error('Error tracking referral link:', error);
+        setError('Failed to track referral link. Please try again.'); // Update error state
+      });
+
+    // Example: Store referral link in local storage
+    localStorage.setItem('referralLink', link);
+    console.log('Referral link stored in local storage:', link);
   };
 
+  // Function to handle registration
   const handleRegister = () => {
     const isValid = validateForm();
-  
+
     if (isValid) {
       fetch('http://localhost:4000/api/users/register', {
         method: 'POST',
@@ -76,15 +99,16 @@ const Register = () => {
           return response.json();
         })
         .then(data => {
-          if (data.userId) {
-            throw new Error('User ID not found in response');
+          if (!data || !data.referral_link) {
+            throw new Error('Referral link not found in response');
           }
-          
-          const userId = data.userId;
-          const link = generateReferralLink(userId);
-          setReferralLink(link);
-          setIsLoggedIn(true);
-          trackReferralLink(link);
+
+          const { referral_link } = data;
+          setIsLoggedIn(false);
+          setReferralLink(referral_link);
+
+          // Track referral link
+          trackReferralLink(referral_link);
         })
         .catch(error => {
           console.error('Error during registration:', error);
@@ -93,6 +117,7 @@ const Register = () => {
     }
   };
 
+  // Render successful registration message and referral link
   if (isLoggedIn) {
     return (
       <FullLayouts>
@@ -105,18 +130,23 @@ const Register = () => {
             backgroundColor: '#f0f0f0',
           }}
         >
-          <Typography variant="h5" component="div" gutterBottom>
-            Registration Successful
-          </Typography>
-          <Typography variant="body1" gutterBottom>
-            Your referral link:
-            <a href={referralLink} target="_blank" rel="noopener noreferrer">{referralLink}</a>
-          </Typography>
+          <Card sx={{ width: '100%', maxWidth: 400, backgroundColor: '#ffffff' }}>
+            <CardContent>
+              <Typography variant="h5" component="div" gutterBottom>
+                Registration Successful
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                Your referral link:
+                <a href={referralLink} target="_blank" rel="noopener noreferrer">{referralLink}</a>
+              </Typography>
+            </CardContent>
+          </Card>
         </Box>
       </FullLayouts>
     );
   }
 
+  // Render registration form
   return (
     <Box
       sx={{

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../connection/db'); // Assuming db.js exports the MySQL connection pool
+const db = require('../connection/db'); // Your MySQL connection pool
 
 // Function to generate a random alphanumeric referral code
 function generateReferralCode() {
@@ -13,32 +13,32 @@ function generateReferralCode() {
     return referralCode;
 }
 
-router.post('/track', (req, res) => {
+// POST endpoint for user registration
+router.post('/register', (req, res) => {
     const { username, email, password } = req.body;
 
-    // Basic input validation (ensure username, email, and password are provided)
+    // Basic input validation
     if (!username || !email || !password) {
         return res.status(400).json({ success: false, message: "Username, email, and password are required" });
     }
 
+    // Generate referral code and link
     const referralCode = generateReferralCode();
-    const referral_link = `https://taa.com/ref/${referralCode}`;
+    const referral_link = `http://example.com/ref/${referralCode}`;
 
-    // SQL query with placeholders for parameterized query
-    const sql = 'INSERT INTO users (username, email, password, referralCode, referral_link) VALUES (?, ?, ?, ?, ?)';
-
-    // Array containing the values to be inserted
+    // SQL query to insert user into database
+    const sql = 'INSERT INTO users (username, email, password, referral_code, referral_link) VALUES (?, ?, ?, ?, ?)';
     const values = [username, email, password, referralCode, referral_link];
 
-    // Execute the SQL query with parameterized values to prevent SQL injection
+    // Execute query
     db.query(sql, values, (err, result) => {
         if (err) {
-            console.error("Error tracking referral:", err);
-            return res.status(500).json({ success: false, message: "Failed to track referral" });
+            console.error("Error registering user:", err);
+            return res.status(500).json({ success: false, message: "Failed to register user" });
         }
 
-        // console.log("Referral tracked successfully");
-        res.json({ success: true, message: "Referral tracked successfully" });
+        // Registration successful, send referral link to frontend
+        res.json({ success: true, referral_link });
     });
 });
 
