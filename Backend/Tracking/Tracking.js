@@ -14,6 +14,7 @@ function generateReferralCode() {
 }
 
 // POST endpoint for user registration
+// POST endpoint for user registration
 router.post('/register', (req, res) => {
     const { username, email, password } = req.body;
 
@@ -27,7 +28,7 @@ router.post('/register', (req, res) => {
     const referral_link = `http://example.com/ref/${referralCode}`;
 
     // SQL query to insert user into database
-    const sql = 'INSERT INTO users (username, email, password, referral_code, referral_link) VALUES (?, ?, ?, ?, ?)';
+    const sql = 'INSERT INTO users (username, email, password, referralCode, referral_link) VALUES (?, ?, ?, ?, ?)';
     const values = [username, email, password, referralCode, referral_link];
 
     // Execute query
@@ -37,9 +38,20 @@ router.post('/register', (req, res) => {
             return res.status(500).json({ success: false, message: "Failed to register user" });
         }
 
+        // Track referral link (server-side)
+        trackReferralLink(referralCode);
+
         // Registration successful, send referral link to frontend
         res.json({ success: true, referral_link });
     });
 });
+
+// Function to track referral link (server-side)
+function trackReferralLink(referralCode) {
+    // Example: Logging or sending data to analytics service
+    console.log(`Referral link tracked successfully: http://example.com/ref/${referralCode}`);
+    // You can implement further actions like sending data to an analytics service or logging this activity.
+}
+
 
 module.exports = router;

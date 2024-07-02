@@ -6,9 +6,10 @@ import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import FullLayouts from '../../layouts/Fulllayouts';
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
@@ -50,34 +51,11 @@ const Register = () => {
     return isValid;
   };
 
-  // Function to track referral link
-  const trackReferralLink = (link) => {
-    // Example: Server-side logging
-    fetch('http://localhost:4000/api/tracking/track', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ link }),
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`Failed to track referral link. Status: ${response.status}`);
-        }
-        console.log('Referral link tracked successfully:', link);
-        return response.json();
-      })
-      .then(data => {
-        console.log('Response from tracking API:', data); // Optional: Log response data
-      })
-      .catch(error => {
-        console.error('Error tracking referral link:', error);
-        setError('Failed to track referral link. Please try again.'); // Update error state
-      });
-
-    // Example: Store referral link in local storage
-    localStorage.setItem('referralLink', link);
-    console.log('Referral link stored in local storage:', link);
+  // Function to track referral link (dummy implementation for example)
+  const trackReferralLink = (referralCode) => {
+    console.log('Tracking referral link:', referralCode);
+    // Simulate successful tracking
+    return Promise.resolve();
   };
 
   // Function to handle registration
@@ -104,11 +82,15 @@ const Register = () => {
           }
 
           const { referral_link } = data;
-          setIsLoggedIn(false);
+          setIsLoggedIn(true);
           setReferralLink(referral_link);
 
           // Track referral link
-          trackReferralLink(referral_link);
+          return trackReferralLink(referral_link);
+        })
+        .then(() => {
+          // After successful registration and tracking, navigate to dashboard
+          navigate('/dashboard');
         })
         .catch(error => {
           console.error('Error during registration:', error);
@@ -120,29 +102,27 @@ const Register = () => {
   // Render successful registration message and referral link
   if (isLoggedIn) {
     return (
-      <FullLayouts>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100vh',
-            backgroundColor: '#f0f0f0',
-          }}
-        >
-          <Card sx={{ width: '100%', maxWidth: 400, backgroundColor: '#ffffff' }}>
-            <CardContent>
-              <Typography variant="h5" component="div" gutterBottom>
-                Registration Successful
-              </Typography>
-              <Typography variant="body1" gutterBottom>
-                Your referral link:
-                <a href={referralLink} target="_blank" rel="noopener noreferrer">{referralLink}</a>
-              </Typography>
-            </CardContent>
-          </Card>
-        </Box>
-      </FullLayouts>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          backgroundColor: '#f0f0f0',
+        }}
+      >
+        <Card sx={{ width: '100%', maxWidth: 400, backgroundColor: '#ffffff' }}>
+          <CardContent>
+            <Typography variant="h5" component="div" gutterBottom>
+              Registration Successful
+            </Typography>
+            <Typography variant="body1" gutterBottom>
+              Your referral link:
+              <a href={referralLink} target="_blank" rel="noopener noreferrer">{referralLink}</a>
+            </Typography>
+          </CardContent>
+        </Card>
+      </Box>
     );
   }
 
@@ -202,7 +182,7 @@ const Register = () => {
           )}
         </CardContent>
         <CardActions sx={{ justifyContent: 'center' }}>
-          <Button variant="contained" color="primary" onClick={handleRegister}>
+          <Button onClick={handleRegister} variant="contained" color="primary">
             Register
           </Button>
         </CardActions>

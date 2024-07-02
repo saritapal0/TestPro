@@ -33,7 +33,7 @@ router.post('/register', validateRegistration, (req, res) => {
 
     // Insert into database
     const sql = "INSERT INTO users (username, email, password, referralCode, referral_link) VALUES (?, ?, ?, ?, ?)";
-    const values = [username, email, password, referralCode, referral_link]; // Include referralCode and referral_link in values array
+    const values = [username, email, password, referralCode, referral_link];
 
     db.query(sql, values, (err, result) => {
         if (err) {
@@ -43,9 +43,12 @@ router.post('/register', validateRegistration, (req, res) => {
                 message: 'Failed to register user'
             });
         }
+
+        // Return the generated referral link in the response
         return res.status(201).json({
             success: true,
             message: 'User registered successfully',
+            referral_link: referral_link,
             insertedId: result.insertId 
         });
     });
