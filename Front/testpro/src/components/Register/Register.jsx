@@ -51,14 +51,11 @@ const Register = () => {
     return isValid;
   };
 
-  // Function to track referral link (dummy implementation for example)
   const trackReferralLink = (referralCode) => {
-    console.log('Tracking referral link:', referralCode);
-    // Simulate successful tracking
+    window.alert(`Referral link tracked successfully: http://example.com/ref/${referralCode}`);
     return Promise.resolve();
   };
 
-  // Function to handle registration
   const handleRegister = () => {
     const isValid = validateForm();
 
