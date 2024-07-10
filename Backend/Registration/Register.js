@@ -29,7 +29,7 @@ router.post('/register', validateRegistration, (req, res) => {
 
     // Generate referral code and link
     const referralCode = generateReferralCode();
-    const referral_link = `https://taa.com/ref/${referralCode}`;
+    const referral_link = `http://localhost:5173/ref/${referralCode}`;
 
     // Insert into database
     const sql = "INSERT INTO users (username, email, password, referralCode, referral_link) VALUES (?, ?, ?, ?, ?)";
@@ -49,7 +49,6 @@ router.post('/register', validateRegistration, (req, res) => {
             success: true,
             message: 'User registered successfully',
             referral_link: referral_link,
-            insertedId: result.insertId 
         });
     });
 });

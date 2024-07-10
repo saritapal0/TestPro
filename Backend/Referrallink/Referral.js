@@ -5,7 +5,7 @@ const db = require("../connection/db")
 // GET request handler
 router.get('/generate', (req, res) => {
     const referralCode = generateReferralCode();
-    const referralLink = `https://taa.com/ref/${referralCode}`;
+    const referralLink = `http://localhost:5173/ref/${referralCode}`;
     const { username, email, password} = req.body;
 
     // Insert referral data into MySQL

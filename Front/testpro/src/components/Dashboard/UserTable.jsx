@@ -142,7 +142,7 @@ const UserTable = () => {
 
   // Generate referral link
   const generateReferralLink = (userId) => {
-    return `http://example.com/referral/${userId}`;
+    return `http://localhost:5173/ref/${userId}`;
     // Customize this URL structure or logic as per your actual requirements
   };
 

@@ -52,7 +52,8 @@ const Register = () => {
   };
 
   const trackReferralLink = (referralCode) => {
-    window.alert(`Referral link tracked successfully: http://example.com/ref/${referralCode}`);
+    // Dummy function to alert for demonstration purposes
+    window.alert(`Referral link tracked successfully:${referralCode}`);
     return Promise.resolve();
   };
 

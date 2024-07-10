@@ -15,6 +15,7 @@ const routes = createBrowserRouter(
         <Route path="/dashboard" element={<Dashboard />} />
       </Route>
       <Route path="/register" element={<Register />} />
+      <Route path="/ref/:referralCode" element={<Register />} />
     </>
   )
 );
